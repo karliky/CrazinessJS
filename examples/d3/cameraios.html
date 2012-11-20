@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Diablo 3 | Camera Controller</title>
+
+    <link href="./d3/css/bootstrap.css" rel="stylesheet">
+    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.10/themes/ui-darkness/jquery-ui.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <style type="text/css">
+      canvas{
+        outline: 1px solid #000;
+        margin: 20px 0px 40px 0px;
+        overflow: hidden;
+      }
+    </style>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.10/jquery-ui.min.js"></script>
+
+	<script>
+	  var socket = io.connect('192.168.1.129');
+	</script>
+
+  </head>
+
+  <body>
+
+    <div id="container"></div>
+    <div id="canvasInfo"></div>
+
+
+    <script src="./d3/js/bootstrap.js"></script>
+    <script src="http://www.html5canvastutorials.com/libraries/kinetic-v3.10.0.js"></script>
+
+   <script>
+    /**/
+    window.onload = function() {
+    var stage = new Kinetic.Stage({
+          container: "container",
+          width: document.width,
+          height: document.height
+        });
+
+        var layer = new Kinetic.Layer();
+
+        var circle = new Kinetic.Circle({
+          x: stage.getWidth() / 2,
+          y: stage.getHeight() / 2,
+          radius: 50,
+          fill: "red",
+          stroke: "black",
+          strokeWidth: 4,
+          draggable:true
+        });
+
+        circle.on("dragmove", function(){
+            var mousePos = this.getPosition();
+
+            var emitter = {
+              x: mousePos.x - (stage.getWidth() / 2),
+              y: mousePos.y - (stage.getHeight() / 2)
+            }
+
+            socket.emit('moveCamera', { value: emitter });
+        });
+
+        circle.on("mouseover", function() {
+          this.setFill("blue");
+          layer.draw();
+        });
+
+        circle.on("mouseout", function() {
+          this.setFill("red");
+          layer.draw();
+        });
+
+        circle.on("touchend", function() {
+          this.transitionTo({
+            x: stage.getWidth() / 2,
+            y: stage.getHeight() / 2,
+            duration: 0.1
+          });
+          layer.draw();
+        });
+
+        circle.on("mouseup", function() {
+          this.transitionTo({
+            x: stage.getWidth() / 2,
+            y: stage.getHeight() / 2,
+            duration: 0.1
+          });
+          layer.draw();
+        });
+
+
+        layer.add(circle);
+        stage.add(layer);
+      };
+    /**/
+  $(function() {
+    /**/
+    socket.on("RACtorsList",function(data){
+      console.log(data)
+    })
+    /**/
+    $( "#slider" ).slider({
+      min: -2.9,
+        max: 2.9,
+        value: 0,
+        step: 1
+    });
+    $( "#slider" ).change(function(hnd,obj){
+      socket.emit('camera', { value: $(this).val() });
+      $(".cameraValue").html($(this).val())
+    });
+  });
+  socket.emit('getRACtors')
+  </script>
+  </body>
+</html>
