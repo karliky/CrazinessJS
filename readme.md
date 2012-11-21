@@ -2,25 +2,41 @@ Craziness JS
 =============
 Memory management through JavaScript.
 
+##Install
+Make sure you've installed all the necessary [build tools for Windows](https://github.com/TooTallNate/node-gyp#installation), then invoke:
+ ```javascript
+npm install craziness
+ ```
+As the documentation has not been finished yet, please take a look at the folder /examples to know how to start with Craziness.
 ##Exports
 
 Craziness.OpenProcess(processText);
+
 Craziness.Write(processHandle,ptr,value,type,size,freeze);
+
 Craziness.Read(process,ptr,size);
+
 Craziness.Nop(processHandle,ptr,numBytes);
+
 Craziness.ReadMultiLevelPtr(process,offsets);
+
 Craziness.listenKey(key);
+
 Craziness.sendKey(target,keyCode);
+
 Craziness.between(angl,first,last);
+
 Craziness.listenKeys(key,callback);
+
 Craziness.radiansToDegrees(radians);
+
 Craziness.degreesToRadians(degrees);
+
 Craziness.unfreeze(ptr);
+
 Craziness.setWindowOnTop(windowName);
-Craziness.version = 0.1
-Craziness.timeToFreeze = 40;
-Craziness.interval = null;
-Craziness.freezedValues = [];
+
+Craziness.version = "0.0.1";
 
 ##Contribute
 Craziness JS is still on alpha development, if you want to help me please e-mail me karliky [at] gmail.com or tweet me @k4rliky
