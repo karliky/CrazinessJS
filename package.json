@@ -1,0 +1,34 @@
+{
+  "name": "craziness",
+  "version": "0.0.1",
+  "description": "Memory management through JavaScript",
+  "main": "index.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install": "node-gyp rebuild"
+  },
+  "dependencies": {
+    "bindings": "*"
+  , "debug": "*"
+  , "ref": "*"
+  , "ref-struct": "*"
+  , "ffi": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/karliky/CrazinessJS.git"
+  },
+  "keywords": [
+    "javascript",
+    "c++",
+    "memory",
+    "managment",
+    "nogg-aholic"
+  ],
+  "author": "@k4rliky",
+  "license": "MIT",
+  "gypfile": true
+}

@@ -34,7 +34,7 @@ io.sockets.on('connection', function(socket) {
     RACtors = [];
     for (var i = 0; i < actorsTotal; i++) {
       RACtors[i] = []
-      RACtors[i].push(currentOffset)
+      RACtors[i].push(currentOffset);
       RACtors[i].push(craziness.Read(myProcess, currentOffset).readInt32LE(0).toString(16).toUpperCase())
       RACtors[i].push(craziness.Read(myProcess, currentOffset + 0x9C).readFloatLE(0))
       RACtors[i].push(craziness.Read(myProcess, currentOffset + 0xA0).readFloatLE(0))
