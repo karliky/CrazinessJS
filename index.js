@@ -173,9 +173,9 @@ exports.degreesToRadians = function(degrees){
 exports.unfreeze = function(ptr){
 	Craziness.freezedValues[ptr] = false;
 }
-exports.setWindowOnTop = function(){
+exports.setWindowOnTop = function(windowName){
 	setTimeout(function(){
-		crazinessCPP.setWindowOnTop("Crazy Example");
+		crazinessCPP.setWindowOnTop(windowName);
 	},100);
 }
 exports.Craziness = Craziness;

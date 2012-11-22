@@ -38,7 +38,7 @@ window.on('ready', function(){
 
   function F12(e){ return e.keyIdentifier === 'F12' }
   function Command_Option_J(e){ return e.keyCode === 74 && e.metaKey && e.altKey }
-  craziness.setWindowOnTop();
+  craziness.setWindowOnTop("Crazy example");
   window.addEventListener('keydown', function(e){
     if (F12(e) || Command_Option_J(e)) {
       window.frame.openDevTools();
