@@ -53,10 +53,11 @@ window.on('close', function(){
 io.sockets.on('connection', function(socket) {
   var myProcess = craziness.OpenProcess("Guild Wars 2");
   console.log("My process",myProcess);
-  var playerVisualBase = [0x015E3548,0x44,0x1c,0x5c,0];
-  var playerRealBase = [0x015E3548,0x44,0x1c,0x88,0];
+  var playerVisualBase = [0x0163DBD4,0x44,0x1c,0x5c,0];
+  var playerRealBase = [0x0163DBD4,0x44,0x1c,0x88,0];
   var superJumpFreezed = false;
   var noClipFreezed = false;
+  var mapeditor = false;
   var playerVisualBase = craziness.ReadMultiLevelPtr(myProcess,playerVisualBase);
   var playerRealBase = craziness.ReadMultiLevelPtr(myProcess,playerRealBase);
 
@@ -76,6 +77,39 @@ io.sockets.on('connection', function(socket) {
    teleport(myProcess,playerVisualBase,playerRealBase);
   });
 
+  /*MAPEDITOR*/
+  var mapInterval = null;
+  craziness.listenKeys([0x12,0x43],function(){
+   if( mapeditor ){
+      mapeditor = false;
+      clearInterval(mapInterval);
+      /*
+      -2544.473389
+      12394.40234
+      -3362.511963
+      */
+      sleep.sleep(0.2);
+    }else{
+      mapeditor = true;
+      
+      mapInterval = setInterval(function(){
+        var destino = {
+            x : craziness.Read(myProcess,0x0170EA88).readFloatLE(0),
+            y : craziness.Read(myProcess,0x0170EA88 + 4).readFloatLE(0),
+            z : craziness.Read(myProcess,0x0170EA88 + 8).readFloatLE(0)
+        }
+
+        if(destino.x.toString() == "Infinity") { return false; }
+
+        console.log(destino);
+        craziness.Write(myProcess,0x11054E7C,destino.x,"float");
+        craziness.Write(myProcess,0x11054E8C,destino.y,"float");
+        craziness.Write(myProcess,0x11054E9C,destino.z,"float");
+      },50);
+      
+      sleep.sleep(0.2);
+    }
+  });
   craziness.listenKeys([0x12,0x5A],function(){
    if( superJumpFreezed ){
       superJumpFreezed = false;
@@ -107,16 +141,16 @@ server.listen(3000);
 
 function teleport(myProcess,playerVisualBase,playerRealBase){
   var destino = {
-      x : craziness.Read(myProcess,0x016B3628).readFloatLE(0) / 32,
-      y : craziness.Read(myProcess,0x016B3628 + 4).readFloatLE(0) / 32,
-      z : Math.abs(craziness.Read(myProcess,0x016B3628 + 8).readFloatLE(0) / 32)
-    }
+      x : craziness.Read(myProcess,0x0170EA88).readFloatLE(0) / 32,
+      y : craziness.Read(myProcess,0x0170EA88 + 4).readFloatLE(0) / 32,
+      z : Math.abs(craziness.Read(myProcess,0x0170EA88 + 8).readFloatLE(0) / 32)
+  }
   
-  if(destino.x.toString() == "Infinity") { craziness.Write(myProcess,0x016A5548,0,"int"); return false; }
+  if(destino.x.toString() == "Infinity") { craziness.Write(myProcess,0x01710394,0,"int"); return false; }
 
   while (true){
     craziness.Write(myProcess,playerRealBase + 0xc8,-1,"float"); // No clip
-    craziness.Write(myProcess,0x016B4E98,1,"int");
+    craziness.Write(myProcess,0x01710394,1,"int");
     var playerPos = {
       xVisual : craziness.Read(myProcess,playerVisualBase + 0xb4).readFloatLE(0),
       yVisual : craziness.Read(myProcess,playerVisualBase + 0xb8).readFloatLE(0),
@@ -125,7 +159,7 @@ function teleport(myProcess,playerVisualBase,playerRealBase){
       yReal : craziness.Read(myProcess,playerRealBase + 0xD4).readFloatLE(0),
       zReal : craziness.Read(myProcess,playerRealBase + 0xD8).readFloatLE(0)
     }
-    craziness.Write(myProcess,0x016B4E98,0,"int");
+    craziness.Write(myProcess,0x01710394,0,"int");
     
 
     var dx= destino.x - playerPos.xVisual;
@@ -142,7 +176,7 @@ function teleport(myProcess,playerVisualBase,playerRealBase){
       craziness.Write(myProcess,playerVisualBase + 0xbc,playerPos.zVisual +10,"float");
       craziness.Write(myProcess,playerRealBase + 0xD8,playerPos.zVisual +10,"float");
       
-      craziness.Write(myProcess,0x016B4E98,0,"int");
+      craziness.Write(myProcess,0x01710394,0,"int");
       break;
     } else {
       craziness.Write(myProcess,playerVisualBase + 0xb4,playerPos.xVisual + (v*dx/dist),"float");
