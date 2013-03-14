@@ -77,7 +77,9 @@ io.sockets.on('connection', function(socket) {
    teleport(myProcess,playerVisualBase,playerRealBase);
   });
 
-  /*MAPEDITOR*/
+  /*MAPEDITOR
+  This is a proof of concept, offsets are dynamics so you won't be able to use.
+  */
   var mapInterval = null;
   craziness.listenKeys([0x12,0x43],function(){
    if( mapeditor ){
