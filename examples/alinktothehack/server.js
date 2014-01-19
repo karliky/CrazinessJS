@@ -262,7 +262,7 @@ io.sockets.on('connection', function (socket) {
             var player = crazy.readStruct(agents[prop], hack.agent_struct);
             player_list.push({
                 id : player.id,
-                ptr: agents[prop].toHex(),
+                ptr: agents[prop],
                 isAlive: player.isAlive,
                 health: player.health,
                 pos: player.agent.pos,

@@ -85,8 +85,8 @@ var crazyCpp = require('./build/Release/crazy');
 	Craziness.prototype.writeAssembly = function(address, byteArray){
 		var assembly = [];
 		for (var i = 0; i < byteArray.length; i++) {
-			assembly.push(craziness.readChar(this.procHandle, address + i, byteArray[i]));
-			craziness.writeChar(this.procHandle, address + i, byteArray[i]);
+			assembly.push(this.readChar(address + i, byteArray[i]));
+			this.writeChar(address + i, byteArray[i]);
 		};
 		return assembly;
 	};
@@ -94,8 +94,8 @@ var crazyCpp = require('./build/Release/crazy');
 	Craziness.prototype.nop = function(address, length){
 		var assembly = [];
 		for (var i = 0; i < length; i++) {
-			assembly.push(craziness.readChar(this.procHandle, address + i, byteArray[i]));
-			craziness.writeChar(this.procHandle, address + i, 0x90);
+			assembly.push(this.readChar(address + i, byteArray[i]));
+			this.writeChar(address + i, 0x90);
 		};
 		return assembly;
 	};
@@ -155,7 +155,7 @@ var crazyCpp = require('./build/Release/crazy');
         var ptr = base;
         for(var prop in struct){
             if(struct[prop].type == "ptr"){
-                    rtn[prop] = craziness.readStruct(craziness.read(ptr + struct[prop].offset, "ptr"), struct[prop].struct);
+                    rtn[prop] = this.readStruct(this.read(ptr + struct[prop].offset, "ptr"), struct[prop].struct);
             }else if(struct[prop].type == "baseAddress"){
                     rtn[prop] = this.readStruct(ptr + struct[prop].offset, struct[prop].struct);
             }else{
