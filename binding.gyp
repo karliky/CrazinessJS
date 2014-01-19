@@ -1,8 +1,8 @@
 {
   "targets": [
     {
-      "target_name": "helpers",
-      "sources": [ "helpers.cc" ]
+      "target_name": "crazy",
+      "sources": [ "crazy.cc" ]
     }
   ]
 }

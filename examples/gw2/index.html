@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>GW2 Machinima Tool</title>
+  <link rel="stylesheet" href="css/style.css">
+
+  <script type="text/javascript">
+    var gui = require('nw.gui');
+    var win = gui.Window.get();
+
+    function close(){
+      win.close(true);
+    }
+
+    var exec = require('child_process').exec;
+    var cmd = "node ./server.js";
+    exec(cmd);
+  </script>
+</head>
+<body>
+  <div class="container">
+    <section>
+      <h6 class="notif-title" >GW2 Machinima Tool!</h6>
+      <p>
+        <ul>
+          <li>
+            <span>Day/Night cycle:</span>
+            <br />
+            <input type="range" id="MapTimeOfDay" value="" min="0.0000000000" max="1.0000000000" step="0.00000001">
+            <br />
+            <span id="MapTimeOfDayValue"></span>
+          </li>
+        </ul>
+      </p>
+      <div class="notif-controls">
+        <a href="javascript:close();" class="notif-close">Close</a>
+      </div>
+    </section>
+  </div>
+  <script type="text/javascript">
+    var MapTimeOfDay = document.getElementById("MapTimeOfDay");
+    var MapTimeOfDayValue = document.getElementById("MapTimeOfDayValue");
+    MapTimeOfDay.addEventListener("change",function(evt){
+      MapTimeOfDayValue.innerHTML = evt.target.value;
+    }, false);
+  </script>
+</body>
+</html>
