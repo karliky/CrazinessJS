@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Crazy example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+	<script src="http://127.0.0.1:3000/socket.io/socket.io.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+	<script>
+	  var socket = io.connect('http://127.0.0.1');
+	  window.onload = function() {
+	  	var camera = document.getElementById("camera");
+	  	var cameraInfo = document.getElementById("cameraInfo");
+	  	var playerHealth = document.getElementById("health");
+	  	var playerhealthInfo = document.getElementById("healthInfo");
+	  	
+	  	camera.addEventListener("change",function(){
+	  		socket.emit("changeCamera",{
+	  			value : this.value
+	  		})
+	  		cameraInfo.innerHTML = this.value;
+	  	});
+
+	  	socket.on("updateCamera",function(data){
+	  		camera.value = data.value;
+	  		cameraInfo.innerHTML = data.value;
+	  	});
+
+	  	socket.on("playerHealth",function(data){
+	  		playerHealth.value = data.health;
+	  		playerHealth.max = data.maxHealth;
+	  		playerhealthInfo.innerHTML = data.health;
+	  	});
+	  }
+	</script>
+    <!-- Le styles -->
+    <link href="./css/bootstrap.css" rel="stylesheet">
+    <style type="text/css">
+		body {
+		padding-top: 60px;
+		padding-bottom: 40px;
+		}
+		.sidebar-nav {
+		padding: 9px 0;
+		}
+		input[type=range] {
+			-webkit-appearance: none;
+			background-color: silver;
+			width: 100%;
+			height:20px;
+		}
+
+		input[type="range"]::-webkit-slider-thumb {
+			-webkit-appearance: none;
+			background-color: #666;
+			opacity: 0.5;
+			width: 5px;
+			height: 20px;
+		}​
+    </style>
+    <link href="./css/bootstrap-responsive.css" rel="stylesheet">
+
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="#">Crazy example</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="active"><a href="index.html">Example 1</a></li>
+              <li><a href="example2.html">Example 2</a></li>
+              <li><a href="example3.html">Example 3</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+    <h3>Camera Controller:</h3>
+    <input type="range" min="0" max="59000" step="0.10" id="camera" />
+    <span>Current value: <span id="cameraInfo"></span></span>
+    <h3>Health of player</h3>
+    <progress id="health" max="100" value="60" style="width: 100%;height:30px;"></progress>
+    <span>Current value: <span id="healthInfo"></span></span>
+    <script src="./js/bootstrap.js"></script>
+  </body>
+</html>

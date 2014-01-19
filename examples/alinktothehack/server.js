@@ -1,5 +1,7 @@
-var craziness = require('../../craziness.js').craziness;
-craziness.setDebugAs(false);
+var Craziness   = require('../../index');
+var crazy       = new Craziness("Guild Wars 2");
+var io          = require('socket.io').listen(6565);
+    io.set('log level', 0);
 
 var GW2 = {
     structs: {
@@ -7,22 +9,16 @@ var GW2 = {
     },
     processHandle: null,
     init: function () {
-        this.processHandle = craziness.openProcess("Guild Wars 2");
-    },
-    getControllerCharacter: function () {
-        var GetCliContextPtr = craziness.readInt(this.processHandle, this.structs.GetCliContextPtr);
-        var character = craziness.readInt(this.processHandle, GetCliContextPtr + 0x4C);
-
-
+        crazy.setDebugAs(false);
     },
     getCliPlayerList: function () {
-        var GetCliContextPtr = craziness.readInt(this.processHandle, this.structs.GetCliContextPtr);
-        var CharacterArray = craziness.readInt(this.processHandle, GetCliContextPtr + 0x28);
-        var CharacterArrayCount = craziness.readInt(this.processHandle, GetCliContextPtr + 0x30);
+        var GetCliContextPtr = crazy.readInt( this.structs.GetCliContextPtr);
+        var CharacterArray = crazy.readInt( GetCliContextPtr + 0x28);
+        var CharacterArrayCount = crazy.readInt( GetCliContextPtr + 0x30);
 
         var toReturn = [];
         for (var i = 0; i < CharacterArrayCount; i++) {
-            var prt = craziness.readInt(this.processHandle, CharacterArray + (i * 4));
+            var prt = crazy.readInt( CharacterArray + (i * 4));
             if (prt != 0)
                 toReturn.push(prt);
         }
@@ -218,17 +214,15 @@ var GW2 = {
 var hack = GW2;
 hack.init();
 
-var io = require('socket.io').listen(6565);
-io.set('log level', 0);
 io.sockets.on('connection', function (socket) {
     console.log("Client Connected");
     
-    var timeOfDayBase = craziness.read(hack.processHandle, 0x174FF04, "ptr");
-    var environmentBase = craziness.read(hack.processHandle, timeOfDayBase + hack.environment_struct.environment.offset, "ptr");
-    var GetCliContextPtr = craziness.read(hack.processHandle, hack.structs.GetCliContextPtr, "ptr");
+    var timeOfDayBase = crazy.read(0x174FF04, "ptr");
+    var environmentBase = crazy.read(timeOfDayBase + hack.environment_struct.environment.offset, "ptr");
+    var GetCliContextPtr = crazy.read(hack.structs.GetCliContextPtr, "ptr");
 
     socket.on('getWorldData', function (data) {    
-        var world = craziness.readStruct(hack.processHandle, 0x017ABA1C , hack.world_struct);
+        var world = crazy.readStruct(0x017ABA1C , hack.world_struct);
         //world.player_angle.arc = Math.atan2(world.player_angle.x,world.player_angle.y) * (180/Math.PI);
         socket.emit("WorldData",world);  
     });
@@ -240,19 +234,19 @@ io.sockets.on('connection', function (socket) {
             var obj = hack.environment_struct.environment.struct[property].struct;
             for(var prop in obj){
                 if(color[prop]){
-                    craziness.writeFloat(hack.processHandle, environmentBase + base + obj[prop].offset, color[prop]);
+                    crazy.writeFloat(environmentBase + base + obj[prop].offset, color[prop]);
                 }
             }
         } 
     });
     socket.on("setTimeOfDay",function(val){
-        craziness.writeFloat(hack.processHandle, timeOfDayBase + hack.environment_struct.MapTimeOfDay.offset , val);
-        var stru = craziness.readStruct(hack.processHandle, timeOfDayBase, hack.environment_struct);
+        crazy.writeFloat(timeOfDayBase + hack.environment_struct.MapTimeOfDay.offset , val);
+        var stru = crazy.readStruct(timeOfDayBase, hack.environment_struct);
         console.log(stru);
     });
 
     socket.on("fixTimeOfDay",function(){
-        var assembly = craziness.writeAssembly(hack.processHandle, 0x0085013A , [0xD9,0x9E,0x00,0x19,0x00,0x00]);
+        var assembly = crazy.writeAssembly(0x0085013A , [0xD9,0x9E,0x00,0x19,0x00,0x00]);
         socket.emit("timeOfDayFixed");
     });
 
@@ -260,12 +254,12 @@ io.sockets.on('connection', function (socket) {
         var agents = hack.getCliPlayerList();
         var player_list = [];
 
-        var controlledCharacterPtr = craziness.readInt(hack.processHandle, GetCliContextPtr + 0x4c);
-        var controlledCharacterId = craziness.readInt(GW2.processHandle, controlledCharacterPtr + 0x34);
+        var controlledCharacterPtr = crazy.readInt(GetCliContextPtr + 0x4c);
+        var controlledCharacterId = crazy.readInt(controlledCharacterPtr + 0x34);
 
         for (var prop in agents) {
 
-            var player = craziness.readStruct(hack.processHandle, agents[prop], hack.agent_struct);
+            var player = crazy.readStruct(agents[prop], hack.agent_struct);
             player_list.push({
                 id : player.id,
                 ptr: agents[prop].toHex(),

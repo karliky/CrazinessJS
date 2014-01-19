@@ -70,6 +70,18 @@ Handle<Value> openProcess(const Arguments& args) {
 	return scope.Close(Number::New( (int)hProcess ));
 }
 
+Handle<Value> closeProcess(const Arguments& args) {
+	HandleScope scope;
+
+	if (!args[0]->IsNumber()) 
+        return ThrowException(Exception::TypeError(String::New("arg[0] must be a number")));
+
+	int process = args[0]->NumberValue();
+	CloseHandle((HANDLE)process);
+
+	return scope.Close(v8::Null());
+}
+
 Handle<Value> readInt(const Arguments& args) {
 	HandleScope scope;
 
@@ -311,6 +323,33 @@ Handle<Value> writeFloat(const Arguments& args) {
 	return scope.Close( Null() );
 }
 
+Handle<Value> writeDouble(const Arguments& args) {
+	HandleScope scope;
+
+	if (!args[0]->IsNumber()) 
+        return ThrowException(Exception::TypeError(String::New("arg[0] must be a number")));
+
+    if (!args[1]->IsNumber()) 
+        return ThrowException(Exception::TypeError(String::New("arg[1] must be a number")));
+
+	v8::String::Utf8Value procHandle(args[0]);
+    const char* procHandleChar = ToCString(procHandle);
+
+	v8::String::Utf8Value procMemAddres(args[1]);
+    const char* int64ToChar = ToCString(procMemAddres);
+
+    __int64 processHandle = _atoi64(procHandleChar);
+	__int64 memoryAddress = _atoi64(int64ToChar);
+	double writeValue = args[2]->NumberValue();
+    
+	if(debugEnabled)
+	printf("Craziness::writeDouble -> Writing value %f into memory address 0x%0.2I64X\n", writeValue, memoryAddress);
+
+	WriteProcessMemory((HANDLE*)processHandle,(void*)memoryAddress,&writeValue,sizeof(writeValue),0);
+
+	return scope.Close( Null() );
+}
+
 Handle<Value> writeInt(const Arguments& args) {
 	HandleScope scope;
 
@@ -332,6 +371,60 @@ Handle<Value> writeInt(const Arguments& args) {
     
 	if(debugEnabled)
 	printf("Craziness::writeInt -> Writing value %d into memory address 0x%0.2I64X\n", writeValue, memoryAddress);
+
+	WriteProcessMemory((HANDLE*)processHandle,(void*)memoryAddress,&writeValue,sizeof(writeValue),0);
+
+	return scope.Close( Null() );
+}
+
+Handle<Value> writeBool(const Arguments& args) {
+	HandleScope scope;
+
+	if (!args[0]->IsNumber()) 
+        return ThrowException(Exception::TypeError(String::New("arg[0] must be a number")));
+
+    if (!args[1]->IsNumber()) 
+        return ThrowException(Exception::TypeError(String::New("arg[1] must be a number")));
+
+	v8::String::Utf8Value procHandle(args[0]);
+    const char* procHandleChar = ToCString(procHandle);
+
+	v8::String::Utf8Value procMemAddres(args[1]);
+    const char* int64ToChar = ToCString(procMemAddres);
+
+    __int64 processHandle = _atoi64(procHandleChar);
+	__int64 memoryAddress = _atoi64(int64ToChar);
+	bool writeValue = args[2]->NumberValue();
+    
+	if(debugEnabled)
+	printf("Craziness::writeBool -> Writing value %d into memory address 0x%0.2I64X\n", writeValue, memoryAddress);
+
+	WriteProcessMemory((HANDLE*)processHandle,(void*)memoryAddress,&writeValue,sizeof(writeValue),0);
+
+	return scope.Close( Null() );
+}
+
+Handle<Value> writeInt64(const Arguments& args) {
+	HandleScope scope;
+
+	if (!args[0]->IsNumber()) 
+        return ThrowException(Exception::TypeError(String::New("arg[0] must be a number")));
+
+    if (!args[1]->IsNumber()) 
+        return ThrowException(Exception::TypeError(String::New("arg[1] must be a number")));
+
+	v8::String::Utf8Value procHandle(args[0]);
+    const char* procHandleChar = ToCString(procHandle);
+
+	v8::String::Utf8Value procMemAddres(args[1]);
+    const char* int64ToChar = ToCString(procMemAddres);
+
+    __int64 processHandle = _atoi64(procHandleChar);
+	__int64 memoryAddress = _atoi64(int64ToChar);
+    __int64 writeValue = args[2]->NumberValue();
+
+	if(debugEnabled)
+	printf("Craziness::writeInt -> Writing value %ld into memory address 0x%0.2I64X\n", writeValue, memoryAddress);
 
 	WriteProcessMemory((HANDLE*)processHandle,(void*)memoryAddress,&writeValue,sizeof(writeValue),0);
 
@@ -490,13 +583,17 @@ void init(Handle<Object> exports) {
   exports->Set(String::NewSymbol("readShort"), FunctionTemplate::New(readShort)->GetFunction());
   exports->Set(String::NewSymbol("readChar"), FunctionTemplate::New(readChar)->GetFunction());
   exports->Set(String::NewSymbol("readFloat"), FunctionTemplate::New(readFloat)->GetFunction());
-  exports->Set(String::NewSymbol("writeFloat"), FunctionTemplate::New(writeFloat)->GetFunction());
-  exports->Set(String::NewSymbol("writeInt"), FunctionTemplate::New(writeInt)->GetFunction());
-  exports->Set(String::NewSymbol("writeChar"), FunctionTemplate::New(writeChar)->GetFunction());
   exports->Set(String::NewSymbol("readDouble"), FunctionTemplate::New(readDouble)->GetFunction());
   exports->Set(String::NewSymbol("readInt"), FunctionTemplate::New(readInt)->GetFunction());
   exports->Set(String::NewSymbol("readInt64"), FunctionTemplate::New(readInt64)->GetFunction());
+  exports->Set(String::NewSymbol("writeFloat"), FunctionTemplate::New(writeFloat)->GetFunction());
+  exports->Set(String::NewSymbol("writeDouble"), FunctionTemplate::New(writeDouble)->GetFunction());
+  exports->Set(String::NewSymbol("writeBool"), FunctionTemplate::New(writeBool)->GetFunction());
+  exports->Set(String::NewSymbol("writeInt"), FunctionTemplate::New(writeInt)->GetFunction());
+  exports->Set(String::NewSymbol("writeInt64"), FunctionTemplate::New(writeInt64)->GetFunction());
+  exports->Set(String::NewSymbol("writeChar"), FunctionTemplate::New(writeChar)->GetFunction());
   exports->Set(String::NewSymbol("openProcess"), FunctionTemplate::New(openProcess)->GetFunction());
+  exports->Set(String::NewSymbol("closeProcess"), FunctionTemplate::New(closeProcess)->GetFunction());
 }
 
 NODE_MODULE(crazy, init)
