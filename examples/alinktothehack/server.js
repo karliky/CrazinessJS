@@ -5,7 +5,7 @@ var io          = require('socket.io').listen(6565);
 
 var GW2 = {
     structs: {
-        GetCliContextPtr: 0x017F2B88
+        GetCliContextPtr: 0x01813238
     },
     processHandle: null,
     init: function () {
@@ -127,26 +127,32 @@ var GW2 = {
         MapType: { offset: 0x300, type: "wchar[256]" },
         MapId: { offset: 0x400, type: "int" },
         MapTimeOfDay: { offset: 0x404, type: "float" },
-        camera_x: { offset: 0x408, type: "float" },
-        camera_y: { offset: 0x40C, type: "float" },
-        camera_z: { offset: 0x410, type: "float" },
-        player_facing: {
-            offset: 0x414,
-            type: "baseAddress",
-            struct: {
-                x: { offset: 0x0 ,type: "float" },
-                y: { offset: 0x4 ,type: "float" },
-                z: { offset: 0x8 ,type: "float" }
-            }
-        },
-        player_angle: {
-            offset: 0x420,
+        camera: {
+            offset : 0x408 , 
             type: "baseAddress",
             struct: {
                 x: { offset: 0x0, type: "float" },
-                y: { offset: 0x4, type: "float" }
-            }   
+                y: { offset: 0x4, type: "float" },
+                z: { offset: 0x8, type: "float" }
+            } 
         },
+        // player_facing: {
+        //     offset: 0x414,
+        //     type: "baseAddress",
+        //     struct: {
+        //         x: { offset: 0x0 ,type: "float" },
+        //         y: { offset: 0x4 ,type: "float" },
+        //         z: { offset: 0x8 ,type: "float" }
+        //     }
+        // },
+        // player_angle: {
+        //     offset: 0x420,
+        //     type: "baseAddress",
+        //     struct: {
+        //         x: { offset: 0x0, type: "float" },
+        //         y: { offset: 0x4, type: "float" }
+        //     }   
+        // },
         player_pos: { 
             offset: 0x42C, 
             type: "baseAddress" , 
@@ -217,12 +223,12 @@ hack.init();
 io.sockets.on('connection', function (socket) {
     console.log("Client Connected");
     
-    var timeOfDayBase = crazy.read(0x174FF04, "ptr");
+    var timeOfDayBase = crazy.read(0x17704E4, "ptr");
     var environmentBase = crazy.read(timeOfDayBase + hack.environment_struct.environment.offset, "ptr");
     var GetCliContextPtr = crazy.read(hack.structs.GetCliContextPtr, "ptr");
 
     socket.on('getWorldData', function (data) {    
-        var world = crazy.readStruct(0x017ABA1C , hack.world_struct);
+        var world = crazy.readStruct(0x017CBFFC , hack.world_struct);
         //world.player_angle.arc = Math.atan2(world.player_angle.x,world.player_angle.y) * (180/Math.PI);
         socket.emit("WorldData",world);  
     });
@@ -242,14 +248,16 @@ io.sockets.on('connection', function (socket) {
     socket.on("setTimeOfDay",function(val){
         crazy.writeFloat(timeOfDayBase + hack.environment_struct.MapTimeOfDay.offset , val);
         var stru = crazy.readStruct(timeOfDayBase, hack.environment_struct);
-        console.log(stru);
     });
 
     socket.on("fixTimeOfDay",function(){
-        var assembly = crazy.writeAssembly(0x0085013A , [0xD9,0x9E,0x00,0x19,0x00,0x00]);
+        var assembly = crazy.writeAssembly(0x0085F8EA , [0xD9,0x9E,0x00,0x19,0x00,0x00]);
+        console.log("fixed")
         socket.emit("timeOfDayFixed");
     });
-
+    socket.on("setWeather", function(val){
+        crazy.writeFloat(environmentBase + hack.environment_struct.environment.struct.storm.offset , val);
+    });
     socket.on('getCliPlayerList', function (data) {
         var agents = hack.getCliPlayerList();
         var player_list = [];
@@ -267,7 +275,7 @@ io.sockets.on('connection', function (socket) {
                 health: player.health,
                 pos: player.agent.pos,
                 isControlledCharacter: (controlledCharacterId == player.id) ? true : false,
-                isInWater: player.isSwimming
+                isSwimming: player.isSwimming
             });
         }
 
