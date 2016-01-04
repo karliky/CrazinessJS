@@ -1,21 +1,15 @@
 {
   "name": "craziness",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Memory management through JavaScript",
   "main": "index.js",
-  "directories": {
-    "example": "examples"
-  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "install": "node-gyp rebuild"
   },
-  "dependencies": {
-    "bindings": "*"
-  , "debug": "*"
-  , "ref": "*"
-  , "ref-struct": "*"
-  , "ffi": "*"
+  "author": "k4rliky",
+  "license": "ISC",
+  "scripts": {
+    "install": "cmake-js compile"
   },
   "repository": {
     "type": "git",
@@ -28,7 +22,8 @@
     "managment",
     "nogg-aholic"
   ],
-  "author": "@k4rliky",
-  "license": "MIT",
-  "gypfile": true
+  "dependencies": {
+    "cmake-js": "^3.0.0",
+    "nan": "^2.1.0"
+  }
 }
