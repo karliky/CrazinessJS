@@ -42,18 +42,17 @@ void searchProcess(const Nan::FunctionCallbackInfo<v8::Value>& info) {
         __log(sText.str());
       }
 
-      if (proc.Attach( found.front() ) != STATUS_SUCCESS)
-      {
+      if (proc.Attach( found.front() ) != STATUS_SUCCESS) {
         if (debugMode) {
           __log("Can't attach to process, status code:");
           std::stringstream sText;
           sText << LastNtStatus();
           __log(sText.str());
         }
-          return;
+        info.GetReturnValue().Set(true);
+      } else {
+        info.GetReturnValue().SetUndefined();
       }
-
-      info.GetReturnValue().Set(true);
   } else {
     info.GetReturnValue().SetUndefined();
   }
