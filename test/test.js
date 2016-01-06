@@ -27,4 +27,11 @@ describe('Native', function() {
     assert.notOk(false, craziness.setDebugMode('wololo'));
   });
 
+  it('should read a memory address', function () {
+    assert(craziness.readMemory);
+    assert.typeOf(craziness.readMemory, 'function');
+    console.log( craziness.readMemory(0x00400000) );
+  });
+
+
 });
